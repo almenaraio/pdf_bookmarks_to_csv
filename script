@@ -1,0 +1,39 @@
+import PyPDF2
+import os
+import csv
+
+# Set working directory (change accordingly)
+os.chdir('c:/temp')
+
+# Path to input/output files (change accordingly)
+pdf_path = 'my_file.pdf'
+csv_path = 'bookmarks.csv'
+
+# Function to extract bookmarks from the PDF
+def extract_bookmarks(pdf_path):
+    bookmarks = []
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfFileReader(file)
+        if reader.getOutlines():
+            outlines = reader.getOutlines()
+            for outline in outlines:
+                if isinstance(outline, list):
+                    for item in outline:
+                        if isinstance(item, PyPDF2.generic.Destination):
+                            bookmarks.append(item['/Title'])
+                elif isinstance(outline, PyPDF2.generic.Destination):
+                    bookmarks.append(outline['/Title'])
+    return bookmarks
+
+# Function to convert bookmarks to CSV
+def bookmarks_to_csv(bookmarks, csv_path):
+    with open(csv_path, 'w', newline='') as file: # Add: encoding='utf-8' if you encounter characters recognition issues
+        writer = csv.writer(file)
+        writer.writerow(['title'])
+        for bookmark in bookmarks:
+            writer.writerow([bookmark])
+
+# Extract bookmarks and convert to CSV
+bookmarks = extract_bookmarks(pdf_path)
+bookmarks_to_csv(bookmarks, csv_path)
+csv_path
